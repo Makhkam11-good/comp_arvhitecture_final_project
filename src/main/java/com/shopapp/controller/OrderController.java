@@ -4,6 +4,7 @@ import com.shopapp.dto.OrderRequest;
 import com.shopapp.dto.OrderResponse;
 import com.shopapp.dto.UpdateStatusRequest;
 import com.shopapp.service.OrderService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping
+    @Operation(summary = "Создать заказ", description = "Требует авторизации. Проверяет наличие товаров на складе.")
     public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody OrderRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(req));
     }

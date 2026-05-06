@@ -3,6 +3,7 @@ package com.shopapp.controller;
 import com.shopapp.dto.ProductRequest;
 import com.shopapp.dto.ProductResponse;
 import com.shopapp.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,6 +27,7 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping
+    @Operation(summary = "Получить все товары", description = "Возвращает список товаров с пагинацией")
     public ResponseEntity<Page<ProductResponse>> getAllProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
