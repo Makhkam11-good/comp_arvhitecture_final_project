@@ -45,6 +45,9 @@ mvn spring-boot:run
 # API is available at:
 # http://localhost:8080
 
+# Web UI is available at:
+# http://localhost:8080
+
 # Swagger UI:
 # http://localhost:8080/swagger-ui.html
 ```

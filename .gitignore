@@ -3,3 +3,4 @@ target/
 .idea/
 *.iml
 .env
+shopapp-run*.log
