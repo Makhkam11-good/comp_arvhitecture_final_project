@@ -18,7 +18,23 @@ public class ProductResponse {
     private String categoryName;
     private LocalDateTime createdAt;
 
+    public static ProductResponse from(Product p, Long categoryId, String categoryName) {
+        ProductResponse r = baseFrom(p);
+        r.setCategoryId(categoryId);
+        r.setCategoryName(categoryName);
+        return r;
+    }
+
     public static ProductResponse from(Product p) {
+        ProductResponse r = baseFrom(p);
+        if (p.getCategory() != null) {
+            r.setCategoryId(p.getCategory().getId());
+            r.setCategoryName(p.getCategory().getName());
+        }
+        return r;
+    }
+
+    private static ProductResponse baseFrom(Product p) {
         ProductResponse r = new ProductResponse();
         r.setId(p.getId());
         r.setName(p.getName());
@@ -27,10 +43,6 @@ public class ProductResponse {
         r.setStock(p.getStock());
         r.setImageUrl(p.getImageUrl());
         r.setCreatedAt(p.getCreatedAt());
-        if (p.getCategory() != null) {
-            r.setCategoryId(p.getCategory().getId());
-            r.setCategoryName(p.getCategory().getName());
-        }
         return r;
     }
 }

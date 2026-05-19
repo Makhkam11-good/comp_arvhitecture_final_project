@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ShopApp</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -15,11 +16,16 @@
                 <p>Интернет-магазин</p>
             </div>
         </div>
-        <nav class="nav">
+
+        <nav class="nav" aria-label="Основная навигация">
             <button class="nav-btn active" data-view="catalog">Каталог</button>
-            <button class="nav-btn" data-view="orders">Заказы</button>
-            <button class="nav-btn" data-view="admin">Админ</button>
+            <button id="cartNavBtn" class="nav-btn" data-view="cart">
+                Корзина <span id="cartNavCount" class="nav-count">0</span>
+            </button>
+            <button id="ordersNavBtn" class="nav-btn hidden" data-view="orders">Мои заказы</button>
+            <button id="adminNavBtn" class="nav-btn hidden" data-view="admin">Админ</button>
         </nav>
+
         <div class="account">
             <span id="userBadge" class="user-badge">Гость</span>
             <button id="authToggle" class="secondary-btn">Войти</button>
@@ -30,18 +36,9 @@
         <aside class="sidebar">
             <section class="panel">
                 <h2>Категории</h2>
-                <div id="categoryList" class="category-list"></div>
-            </section>
-
-            <section class="panel">
-                <h2>Корзина</h2>
-                <div id="cartList" class="cart-list"></div>
-                <div class="cart-total">
-                    <span>Итого</span>
-                    <strong id="cartTotal">$0.00</strong>
+                <div id="categoryList" class="category-list">
+                    <p class="muted">Загрузка...</p>
                 </div>
-                <input id="orderAddress" class="field" placeholder="Адрес доставки">
-                <button id="checkoutBtn" class="primary-btn full">Оформить заказ</button>
             </section>
         </aside>
 
@@ -49,11 +46,11 @@
             <section id="catalogView" class="view active">
                 <div class="toolbar">
                     <div>
-                        <h2>Товары</h2>
+                        <h2>Каталог</h2>
                         <p id="catalogMeta">Загрузка каталога</p>
                     </div>
                     <div class="search-row">
-                        <input id="searchInput" class="field" placeholder="Поиск товара">
+                        <input id="searchInput" class="field" placeholder="Поиск товара" autocomplete="off">
                         <button id="searchBtn" class="secondary-btn">Найти</button>
                         <button id="resetSearchBtn" class="ghost-btn">Сброс</button>
                     </div>
@@ -62,7 +59,38 @@
                 <div class="pager">
                     <button id="prevPageBtn" class="secondary-btn">Назад</button>
                     <span id="pageInfo">Страница 1</span>
-                    <button id="nextPageBtn" class="secondary-btn">Вперед</button>
+                    <button id="nextPageBtn" class="secondary-btn">Вперёд</button>
+                </div>
+            </section>
+
+            <section id="cartView" class="view">
+                <div class="toolbar">
+                    <div>
+                        <h2>Корзина</h2>
+                        <p id="cartMeta">Товары, которые вы выбрали</p>
+                    </div>
+                    <button id="continueShoppingBtn" class="secondary-btn">Вернуться в каталог</button>
+                </div>
+
+                <div class="cart-layout">
+                    <section class="panel cart-panel">
+                        <div class="panel-head">
+                            <h3>Ваши товары</h3>
+                            <span id="cartCount" class="pill">0</span>
+                        </div>
+                        <div id="cartList" class="cart-list cart-page-list"></div>
+                    </section>
+
+                    <aside class="panel cart-summary">
+                        <h3>Оформление</h3>
+                        <div class="summary-row">
+                            <span>Итого</span>
+                            <strong id="cartTotal">$0.00</strong>
+                        </div>
+                        <input id="orderAddress" class="field" placeholder="Адрес доставки" autocomplete="street-address">
+                        <button id="checkoutBtn" class="primary-btn full">Оформить заказ</button>
+                        <button id="clearCartBtn" class="ghost-btn full" type="button">Очистить корзину</button>
+                    </aside>
                 </div>
             </section>
 
@@ -78,32 +106,82 @@
             </section>
 
             <section id="adminView" class="view">
-                <div class="toolbar">
-                    <div>
-                        <h2>Панель администратора</h2>
-                        <p>Создание категорий и товаров</p>
-                    </div>
-                </div>
-                <div class="admin-grid">
-                    <form id="categoryForm" class="panel form-panel">
-                        <h3>Новая категория</h3>
-                        <input name="name" class="field" placeholder="Название" required maxlength="100">
-                        <textarea name="description" class="field" placeholder="Описание"></textarea>
-                        <button class="primary-btn full" type="submit">Создать категорию</button>
-                    </form>
-
-                    <form id="productForm" class="panel form-panel">
-                        <h3>Новый товар</h3>
-                        <input name="name" class="field" placeholder="Название" required maxlength="200">
-                        <textarea name="description" class="field" placeholder="Описание"></textarea>
-                        <div class="two-cols">
-                            <input name="price" class="field" placeholder="Цена" type="number" min="0.01" step="0.01" required>
-                            <input name="stock" class="field" placeholder="Остаток" type="number" min="0" required>
+                <div id="adminDenied" class="notice danger hidden">Доступ запрещён</div>
+                <div id="adminContent" class="admin-content">
+                    <div class="toolbar">
+                        <div>
+                            <h2>Панель администратора</h2>
+                            <p>Товары, категории, заказы и пользователи</p>
                         </div>
-                        <input name="imageUrl" class="field" placeholder="Ссылка на изображение">
-                        <select name="categoryId" id="productCategorySelect" class="field" required></select>
-                        <button class="primary-btn full" type="submit">Создать товар</button>
-                    </form>
+                        <button id="refreshAdminBtn" class="secondary-btn">Обновить</button>
+                    </div>
+
+                    <div class="admin-workspace">
+                        <aside class="panel admin-menu" aria-label="Разделы администратора">
+                            <button class="admin-menu-btn active" type="button" data-admin-section="products">Товары</button>
+                            <button class="admin-menu-btn" type="button" data-admin-section="categories">Категории</button>
+                            <button class="admin-menu-btn" type="button" data-admin-section="orders">Заказы</button>
+                            <button class="admin-menu-btn" type="button" data-admin-section="users">Пользователи</button>
+                        </aside>
+
+                        <div class="admin-panels">
+                            <section class="admin-panel active" data-admin-panel="products">
+                                <div class="admin-split">
+                                    <form id="productForm" class="panel form-panel">
+                                        <h3 id="productFormTitle">Новый товар</h3>
+                                        <input id="productIdInput" name="id" type="hidden">
+                                        <input name="name" class="field" placeholder="Название" required maxlength="200">
+                                        <textarea name="description" class="field" placeholder="Описание"></textarea>
+                                        <div class="two-cols">
+                                            <input name="price" class="field" placeholder="Цена" type="number" min="0.01" step="0.01" required>
+                                            <input name="stock" class="field" placeholder="Остаток" type="number" min="0" required>
+                                        </div>
+                                        <input name="imageUrl" class="field" placeholder="Ссылка на изображение">
+                                        <select name="categoryId" id="productCategorySelect" class="field" required></select>
+                                        <button id="productSubmitBtn" class="primary-btn full" type="submit">Создать товар</button>
+                                        <button id="cancelProductEditBtn" class="ghost-btn full hidden" type="button">Отменить редактирование</button>
+                                    </form>
+
+                                    <section class="panel admin-section">
+                                        <h3>Товары</h3>
+                                        <div id="adminProductList" class="stack-list"></div>
+                                    </section>
+                                </div>
+                            </section>
+
+                            <section class="admin-panel" data-admin-panel="categories">
+                                <div class="admin-split">
+                                    <form id="categoryForm" class="panel form-panel">
+                                        <h3 id="categoryFormTitle">Новая категория</h3>
+                                        <input id="categoryIdInput" name="id" type="hidden">
+                                        <input name="name" class="field" placeholder="Название" required maxlength="100">
+                                        <textarea name="description" class="field" placeholder="Описание"></textarea>
+                                        <button id="categorySubmitBtn" class="primary-btn full" type="submit">Создать категорию</button>
+                                        <button id="cancelCategoryEditBtn" class="ghost-btn full hidden" type="button">Отменить редактирование</button>
+                                    </form>
+
+                                    <section class="panel admin-section">
+                                        <h3>Категории</h3>
+                                        <div id="adminCategoryList" class="stack-list"></div>
+                                    </section>
+                                </div>
+                            </section>
+
+                            <section class="admin-panel" data-admin-panel="orders">
+                                <section class="panel admin-section">
+                                    <h3>Все заказы</h3>
+                                    <div id="adminOrdersList" class="stack-list"></div>
+                                </section>
+                            </section>
+
+                            <section class="admin-panel" data-admin-panel="users">
+                                <section class="panel admin-section">
+                                    <h3>Пользователи</h3>
+                                    <div id="adminUsersList" class="stack-list"></div>
+                                </section>
+                            </section>
+                        </div>
+                    </div>
                 </div>
             </section>
         </section>
@@ -113,11 +191,12 @@
         <form id="authForm" class="dialog-card">
             <div class="dialog-head">
                 <h2 id="authTitle">Вход</h2>
-                <button type="button" id="closeAuthBtn" class="icon-btn">x</button>
+                <button type="button" id="closeAuthBtn" class="icon-btn" aria-label="Закрыть">×</button>
             </div>
-            <input name="username" class="field" placeholder="Логин" required>
-            <input name="email" class="field register-only hidden" placeholder="Email">
-            <input name="password" class="field" type="password" placeholder="Пароль" required minlength="6">
+            <div id="authMessage" class="notice hidden"></div>
+            <input name="username" class="field" placeholder="Логин или email" required autocomplete="username">
+            <input name="email" class="field register-only hidden" placeholder="Email" autocomplete="email">
+            <input name="password" class="field" type="password" placeholder="Пароль" required minlength="6" autocomplete="current-password">
             <button class="primary-btn full" type="submit">Продолжить</button>
             <button id="switchAuthModeBtn" type="button" class="ghost-btn full">Создать аккаунт</button>
         </form>
@@ -127,13 +206,13 @@
         <article class="dialog-card wide">
             <div class="dialog-head">
                 <h2 id="productDialogTitle">Товар</h2>
-                <button type="button" id="closeProductBtn" class="icon-btn">x</button>
+                <button type="button" id="closeProductBtn" class="icon-btn" aria-label="Закрыть">×</button>
             </div>
             <div id="productDetails" class="product-details"></div>
         </article>
     </dialog>
 
-    <div id="toast" class="toast"></div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
     <script src="/app.js"></script>
 </body>
 </html>

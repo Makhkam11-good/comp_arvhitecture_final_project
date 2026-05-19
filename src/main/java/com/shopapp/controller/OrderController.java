@@ -27,17 +27,20 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Создать заказ", description = "Требует авторизации. Проверяет наличие товаров на складе.")
     public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody OrderRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(req));
     }
 
     @GetMapping("/my")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<OrderResponse>> getMyOrders() {
         return ResponseEntity.ok(orderService.getMyOrders());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long id) {
         return ResponseEntity.ok(orderService.getOrderById(id));
     }

@@ -5,9 +5,11 @@ import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -50,6 +52,30 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now(),
                 request.getRequestURI());
         return ResponseEntity.status(403).body(error);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthentication(
+            AuthenticationException ex,
+            HttpServletRequest request) {
+        ErrorResponse error = new ErrorResponse(
+                401,
+                "Неверный логин или пароль",
+                LocalDateTime.now(),
+                request.getRequestURI());
+        return ResponseEntity.status(401).body(error);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResource(
+            NoResourceFoundException ex,
+            HttpServletRequest request) {
+        ErrorResponse error = new ErrorResponse(
+                404,
+                "Resource not found",
+                LocalDateTime.now(),
+                request.getRequestURI());
+        return ResponseEntity.status(404).body(error);
     }
 
     @ExceptionHandler(RuntimeException.class)

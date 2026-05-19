@@ -9,6 +9,7 @@ import lombok.Data;
 public class OrderResponse {
 
     private Long id;
+    private String username;
     private String status;
     private BigDecimal totalPrice;
     private String address;

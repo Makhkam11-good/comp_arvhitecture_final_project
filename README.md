@@ -35,9 +35,14 @@ cd shopapp
 # Create database:
 createdb shopapp_db
 
-# Configure src/main/resources/application.properties:
-# spring.datasource.username=<your_postgres_user>
-# spring.datasource.password=<your_postgres_password>
+# Optional env overrides:
+# SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/shopapp_db
+# SPRING_DATASOURCE_USERNAME=postgres
+# SPRING_DATASOURCE_PASSWORD=<your_postgres_password>
+# JWT_SECRET=<at-least-32-characters>
+# APP_ADMIN_USERNAME=admin
+# APP_ADMIN_EMAIL=admin@shopapp.local
+# APP_ADMIN_PASSWORD=admin123
 
 mvn clean install
 mvn spring-boot:run
@@ -51,6 +56,17 @@ mvn spring-boot:run
 # Swagger UI:
 # http://localhost:8080/swagger-ui.html
 ```
+
+## Demo Login
+
+On startup the app creates a demo administrator if `APP_ADMIN_USERNAME` does not exist.
+
+| Role | Login | Password |
+| --- | --- | --- |
+| Admin | `admin` or `admin@shopapp.local` | `admin123` |
+| User | Register from the web UI or call `/api/auth/register` | password from registration |
+
+Login accepts either username or email in the existing `username` field.
 
 ## API Endpoints
 

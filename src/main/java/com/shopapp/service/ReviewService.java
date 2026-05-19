@@ -13,6 +13,7 @@ import com.shopapp.repository.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,7 +72,7 @@ public class ReviewService {
                 .orElseThrow(() -> new ResourceNotFoundException("Review not found: " + reviewId));
 
         if (!review.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
-            throw new RuntimeException("You can only delete your own reviews");
+            throw new AccessDeniedException("You can only delete your own reviews");
         }
 
         reviewRepository.deleteById(reviewId);

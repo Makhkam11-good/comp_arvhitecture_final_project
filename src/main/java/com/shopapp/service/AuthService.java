@@ -9,6 +9,7 @@ import com.shopapp.repository.UserRepository;
 import com.shopapp.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -50,10 +51,12 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
+        String login = request.getUsername().trim();
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+                new UsernamePasswordAuthenticationToken(login, request.getPassword()));
 
-        User user = userRepository.findByUsername(request.getUsername()).orElseThrow();
+        User user = userRepository.findByUsernameOrEmail(login, login)
+                .orElseThrow(() -> new BadCredentialsException("Invalid username/email or password"));
         String token = jwtUtil.generateToken(user.getUsername());
         return new AuthResponse(token, user.getUsername(), user.getRole().name());
     }

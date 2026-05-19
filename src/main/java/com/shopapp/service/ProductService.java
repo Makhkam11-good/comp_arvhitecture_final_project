@@ -48,6 +48,7 @@ public class ProductService {
         return productRepository.findByCategoryId(categoryId, pageable).map(ProductResponse::from);
     }
 
+    @Transactional
     public ProductResponse createProduct(ProductRequest req) {
         Category cat = categoryRepository.findById(req.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + req.getCategoryId()));
@@ -59,9 +60,11 @@ public class ProductService {
         p.setStock(req.getStock());
         p.setImageUrl(req.getImageUrl());
         p.setCategory(cat);
-        return ProductResponse.from(productRepository.save(p));
+        Product savedProduct = productRepository.save(p);
+        return ProductResponse.from(savedProduct, cat.getId(), cat.getName());
     }
 
+    @Transactional
     public ProductResponse updateProduct(Long id, ProductRequest req) {
         Product p = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + id));
@@ -74,9 +77,11 @@ public class ProductService {
         p.setStock(req.getStock());
         p.setImageUrl(req.getImageUrl());
         p.setCategory(cat);
-        return ProductResponse.from(productRepository.save(p));
+        Product savedProduct = productRepository.save(p);
+        return ProductResponse.from(savedProduct, cat.getId(), cat.getName());
     }
 
+    @Transactional
     public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
             throw new ResourceNotFoundException("Product not found: " + id);

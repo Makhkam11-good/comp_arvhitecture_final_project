@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -103,8 +104,8 @@ public class OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + id));
         User user = getCurrentUser();
 
-        if (!order.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
-            throw new RuntimeException("Access denied");
+        if ((order.getUser() == null || !order.getUser().getId().equals(user.getId())) && user.getRole() != Role.ADMIN) {
+            throw new AccessDeniedException("Access denied");
         }
 
         return buildOrderResponse(order, orderItemRepository.findByOrderId(id));
@@ -129,6 +130,7 @@ public class OrderService {
     private OrderResponse buildOrderResponse(Order order, List<OrderItem> items) {
         OrderResponse response = new OrderResponse();
         response.setId(order.getId());
+        response.setUsername(order.getUser() != null ? order.getUser().getUsername() : null);
         response.setStatus(order.getStatus().name());
         response.setTotalPrice(order.getTotalPrice());
         response.setAddress(order.getAddress());
